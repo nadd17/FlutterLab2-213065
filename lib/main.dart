@@ -1,22 +1,36 @@
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:provider/provider.dart';
 import 'favorites_context.dart';
-import 'firebase_options.dart';
-import 'models/joke_model.dart';
 import 'screens/favorite_jokes_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/jokes_by_type_screen.dart';
 import 'screens/random_joke_screen.dart';
+import 'models/joke_model.dart';
+import 'firebase_options.dart';
 
-// Local notifications plugin instance
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
 
-// Initialize local notifications
+Future<void> handleBackgroundMessage(RemoteMessage message) async {
+  print("Background message received: ${message.messageId}");
+}
+
 Future<void> initializeNotifications() async {
+  const AndroidNotificationChannel channel = AndroidNotificationChannel(
+    'high_importance_channel', 
+    'High Importance Notifications', 
+    description: 'This channel is used for important notifications.',
+    importance: Importance.max,
+  );
+
+  await flutterLocalNotificationsPlugin
+      .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>()
+      ?.createNotificationChannel(channel);
+
   const androidInitializationSettings =
       AndroidInitializationSettings('@mipmap/ic_launcher');
 
@@ -24,18 +38,19 @@ Future<void> initializeNotifications() async {
     android: androidInitializationSettings,
   );
 
-  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+  await flutterLocalNotificationsPlugin.initialize(
+    initializationSettings,
+    onDidReceiveNotificationResponse: (NotificationResponse response) async {
+      if (response.payload != null) {
+        print("Notification payload: ${response.payload}");
+      }
+    },
+  );
 }
 
-// Get and print FCM Token
 Future<void> fetchFCMToken() async {
   String? token = await FirebaseMessaging.instance.getToken();
   print("FCM Token: $token");
-}
-
-// Background message handler
-Future<void> handleBackgroundMessage(RemoteMessage message) async {
-  print("Background message received: ${message.messageId}");
 }
 
 void main() async {
@@ -43,13 +58,10 @@ void main() async {
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  // Initialize local notifications
   await initializeNotifications();
 
-  // Fetch and print the FCM token
   await fetchFCMToken();
 
-  // Register the background message handler
   FirebaseMessaging.onBackgroundMessage(handleBackgroundMessage);
 
   runApp(
@@ -58,6 +70,32 @@ void main() async {
       child: const MyApp(),
     ),
   );
+
+  
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    print("Foreground message received: ${message.notification?.title}");
+
+    RemoteNotification? notification = message.notification;
+    AndroidNotification? android = message.notification?.android;
+
+    if (notification != null && android != null) {
+      flutterLocalNotificationsPlugin.show(
+        notification.hashCode,
+        notification.title,
+        notification.body,
+        const NotificationDetails(
+          android: AndroidNotificationDetails(
+            'high_importance_channel', 
+            'High Importance Notifications', 
+            channelDescription:
+                'This channel is used for important notifications.',
+            importance: Importance.max,
+            priority: Priority.high,
+          ),
+        ),
+      );
+    }
+  });
 }
 
 class MyApp extends StatelessWidget {

@@ -10,19 +10,19 @@ class RandomJokeScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Random Joke'),
-        backgroundColor: Colors.green, // Green app bar
+        backgroundColor: Colors.green, 
       ),
-      body: Center( // Center widget to align content vertically and horizontally
+      body: Center( 
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
-            mainAxisSize: MainAxisSize.min, // Adjust column height to content size
+            mainAxisSize: MainAxisSize.min, 
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
                 joke.setup,
-                textAlign: TextAlign.center, // Center the text horizontally
+                textAlign: TextAlign.center, 
                 style: const TextStyle(
                   fontSize: 18,
                   color: Colors.green,
@@ -31,11 +31,11 @@ class RandomJokeScreen extends StatelessWidget {
               const SizedBox(height: 10),
               Text(
                 joke.punchline,
-                textAlign: TextAlign.center, // Center the text horizontally
+                textAlign: TextAlign.center, 
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: Colors.green, // Green punchline
+                  color: Colors.green, 
                 ),
               ),
             ],
