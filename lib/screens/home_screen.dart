@@ -16,11 +16,12 @@ class HomeScreen extends StatelessWidget {
               icon: const Icon(Icons.shuffle, color: Colors.white),
               onPressed: () async {
                 final randomJoke = await ApiService.getRandomJoke();
-                Navigator.pushNamed(context, '/randomJoke', arguments: randomJoke);
+                Navigator.pushNamed(context, '/randomJoke',
+                    arguments: randomJoke);
               },
               tooltip: 'Get a Random Joke',
             ),
-            const SizedBox(width: 4), // Space between the icon and text
+            const SizedBox(width: 4),
             const Text(
               'Click here for a random joke',
               style: TextStyle(color: Colors.white, fontSize: 16),
@@ -44,6 +45,22 @@ class HomeScreen extends StatelessWidget {
           ),
           const SizedBox(height: 10),
 
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: ElevatedButton.icon(
+              icon: const Icon(Icons.favorite, color: Colors.white),
+              label: const Text('Favorite Jokes'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green.shade300,
+                padding: const EdgeInsets.all(12),
+              ),
+              onPressed: () {
+                Navigator.pushNamed(context, '/favoriteJokes');
+              },
+            ),
+          ),
+          const SizedBox(height: 10),
+
           // Categories Grid
           Expanded(
             child: FutureBuilder<List<String>>(
@@ -58,11 +75,12 @@ class HomeScreen extends StatelessWidget {
                   return Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: GridView.builder(
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2, // 2 cards per row
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2, 
                         crossAxisSpacing: 8,
                         mainAxisSpacing: 8,
-                        childAspectRatio: 2.5, // Adjust the aspect ratio
+                        childAspectRatio: 2.5, 
                       ),
                       itemCount: jokeTypes.length,
                       itemBuilder: (context, index) {
